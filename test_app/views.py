@@ -86,7 +86,7 @@ class Results(APIView):
             #percentage of students who are all passed
             passed_students = (total_students - grade_F) / total_students * 100
         else:
-            return Response(status=status.)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         results['total_students'] = total_students
         results['grade_A'] = grade_A
         results['grade_B'] = grade_B
