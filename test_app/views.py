@@ -28,30 +28,23 @@ class Students(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
 class Marks(APIView):
     
     #getting the marks of all students
-    def get(self, request, id):
+    def get(self, request):
         marks = Mark.objects.all()
         serializer_class = MarkSerializer(marks, many=True)
         return Response(serializer_class.data)
     
-    #getting a particular student
-    def get_student(self, id):
-        try:
-            return Student.objects.get(roll_no=id)
-        except Student.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-    
     #adding the mark to that particular student
-    def post(self, request, id):
-        student = self.get_student(id)
+    def post(self, request):
         mark = request.data['mark']
-        if student.roll_no == id:
-            Mark.objects.get_or_create(student=student, mark=int(mark))
+        roll_no = request.data['student']
+        if Student.objects.filter(roll_no=roll_no).exists():
+            Mark.objects.get_or_create(student_id=roll_no, mark=int(mark))
             return Response(status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_404_NOT_FOUND)
     
@@ -85,12 +78,15 @@ class Results(APIView):
                 grade_F += 1
             else:
                 no_grade += 1
-        #percentage of students with distinction
-        distinction = grade_A / total_students * 100
-        #percentage of students with first class
-        first_class = (grade_B + grade_C) / total_students * 100
-        #percentage of students who are all passed
-        passed_students = (total_students - grade_F) / total_students * 100
+        if total_students > 0:
+            #percentage of students with distinction
+            distinction = grade_A / total_students * 100
+            #percentage of students with first class
+            first_class = (grade_B + grade_C) / total_students * 100
+            #percentage of students who are all passed
+            passed_students = (total_students - grade_F) / total_students * 100
+        else:
+            return Response(status=status.)
         results['total_students'] = total_students
         results['grade_A'] = grade_A
         results['grade_B'] = grade_B
