@@ -78,7 +78,7 @@ class Results(APIView):
                 grade_F += 1
             else:
                 no_grade += 1
-        if total_students > 0:
+        if total_students > 0 and (grade_B > 0 or grade_C > 0):
             #percentage of students with distinction
             distinction = grade_A / total_students * 100
             #percentage of students with first class
